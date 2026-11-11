@@ -224,15 +224,175 @@ fluxes_7023_atm_glsub = fluxes_7023_atm_gsub - spline_7023_atm_gsub
 # They fit the '16-18' micron region using 9 components
 # The wavelength of the centre of the profile and the FWHM are given in Table 2
 
-comp_16p0a = [15.86, 0.289]
-comp_16p0b = [16.03, 0.114]
-comp_16p4a = [16.402, 0.040]
-comp_16p4b = [16.439, 0.182]
-comp_16p7 = [16.720, 0.352]
-comp_17p0 = [16.997, 0.464]
-comp_17p2 = [17.170, 0.219]
-comp_17p4 = [17.374, 0.224]
-comp_17p7 = [17.771, 0.362]
+# [wavelength of max amplitude, FWHM]
+# wavelength values have been rounded to two decimal places compared to Table 2
+# this is done to account for np.where() not being able to find indecies out to 3 decimal places
+tabvals_16p0a = [15.86, 0.289]
+tabvals_16p0b = [16.03, 0.114]
+tabvals_16p4a = [16.40, 0.040]
+tabvals_16p4b = [16.44, 0.182]
+tabvals_16p7 = [16.72, 0.352]
+tabvals_17p0 = [17.00, 0.464]
+tabvals_17p2 = [17.17, 0.219]
+tabvals_17p4 = [17.37, 0.224]
+tabvals_17p7 = [17.77, 0.362]
 
+# [index of maximum amplitude wavelength, gamma]
+comp_16p0a = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_16p0a[0])[0][0],
+    tabvals_16p0a[1] / 2
+]
+comp_16p0b = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_16p0b[0])[0][0],
+    tabvals_16p0b[1] / 2
+]
+comp_16p4a = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_16p4a[0])[0][0],
+    tabvals_16p4a[1] / 2
+]
+comp_16p4b = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_16p4b[0])[0][0],
+    tabvals_16p4b[1] / 2
+]
+comp_16p7 = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_16p7[0])[0][0],
+    tabvals_16p7[1] / 2
+]
+comp_17p0 = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_17p0[0])[0][0],
+    tabvals_17p0[1] / 2
+]
+comp_17p2 = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_17p2[0])[0][0],
+    tabvals_17p2[1] / 2
+]
+comp_17p4 = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_17p4[0])[0][0],
+    tabvals_17p4[1] / 2
+]
+comp_17p7 = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_17p7[0])[0][0],
+    tabvals_17p7[1] / 2
+]
+
+# We will replicate using a series of lorentzian profiles
+bounds = [
+    np.where(np.round(waves_7023_atm, 2) == 15.00)[0][0],
+    np.where(np.round(waves_7023_atm, 2) == 18.50)[0][0]
+]
+vary = [False, True, False]
+profile = ProfileFitter()
+#16.0A component
+profile.add_component(
+    lorentzian,
+    ['x01', 'amp1', 'gamma1'],
+    initial_values=[tabvals_16p0a[0], comp_16p0a[0], comp_16p0a[1]],
+    min_values=[15.8, 10, 0],
+    max_values=[15.9, 1000, 0.15],
+    allow_vary=vary
+)
+
+#16.0B component
+profile.add_component(
+    lorentzian,
+    ['x02', 'amp2', 'gamma2'],
+    initial_values=[tabvals_16p0b[0], comp_16p0b[0], comp_16p0b[1]],
+    min_values=[16.0, 10, 0],
+    max_values=[16.05, 1000, 0.06],
+    allow_vary=vary
+)
+
+#16.4A component
+profile.add_component(
+    lorentzian,
+    ['x03', 'amp3', 'gamma3'],
+    initial_values=[tabvals_16p4a[0], comp_16p4a[0], comp_16p4a[1]],
+    min_values=[16.40, 10, 0],
+    max_values=[16.41, 1000, 0.03],
+    allow_vary=vary
+)
+
+#16.4B component
+profile.add_component(
+    lorentzian,
+    ['x04', 'amp4', 'gamma4'],
+    initial_values=[tabvals_16p4b[0], comp_16p4b[0], comp_16p4b[1]],
+    min_values=[16.43, 10, 0],
+    max_values=[16.44, 1000, 0.1],
+    allow_vary=vary
+)
+
+#16.7 component
+profile.add_component(
+    lorentzian,
+    ['x05', 'amp5', 'gamma5'],
+    initial_values=[tabvals_16p7[0], comp_16p7[0], comp_16p7[1]],
+    min_values=[16.7, 10, 0],
+    max_values=[16.75, 1000, 0.18],
+    allow_vary=vary
+)
+
+#17.0 component
+profile.add_component(
+    lorentzian,
+    ['x06', 'amp6', 'gamma6'],
+    initial_values=[tabvals_17p0[0], comp_17p0[0], comp_17p0[1]],
+    min_values=[16.9, 10, 0],
+    max_values=[17.1, 1000, 0.24],
+    allow_vary=vary
+)
+
+#17.2 component
+profile.add_component(
+    lorentzian,
+    ['x07', 'amp7', 'gamma7'],
+    initial_values=[tabvals_17p2[0], comp_17p2[0], comp_17p2[1]],
+    min_values=[17.1, 10, 0],
+    max_values=[17.2, 1000, 0.11],
+    allow_vary=vary
+)
+
+#17.4 component
+profile.add_component(
+    lorentzian,
+    ['x08', 'amp8', 'gamma8'],
+    initial_values=[tabvals_17p4[0], comp_17p4[0], comp_17p4[1]],
+    min_values=[17.3, 10, 0],
+    max_values=[17.4, 1000, 0.12],
+    allow_vary=vary
+)
+
+#17.7 component
+profile.add_component(
+    lorentzian,
+    ['x09', 'amp9', 'gamma9'],
+    initial_values=[tabvals_17p7[0], comp_17p7[0], comp_17p7[1]],
+    min_values=[17.7, 10, 0],
+    max_values=[17.8, 1000, 0.19],
+    allow_vary=vary
+)
+
+wave_range = waves_7023_atm[bounds[0]:bounds[1]]
+flux_range = fluxes_7023_atm_glsub[bounds[0]:bounds[1]]
+cont_range = spline_7023_atm_gsub[bounds[0]:bounds[1]]
+profile_fit = profile.fit(wave_range, flux_range + cont_range)
+
+fig = plt.figure()
+plt.plot(wave_range, flux_range + cont_range)
+plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range), linestyle=':', color='black')
+plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[True, False, False, False, False, False, False, False, False]))
+plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, True, False, False, False, False, False, False, False]))
+plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, True, False, False, False, False, False, False]))
+plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, True, False, False, False, False, False]))
+plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, True, False, False, False, False]))
+plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, True, False, False, False]))
+plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, True, False, False]))
+plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, True, False]))
+plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, False, True]))
+
+
+# plt.xlim(15.5, 18.5)
+
+plt.show()
 
 
