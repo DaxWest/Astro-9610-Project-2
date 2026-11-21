@@ -275,7 +275,7 @@ comp_17p7 = [
     tabvals_17p7[1] / 2
 ]
 
-# We will replicate using a series of lorentzian profiles
+# We will replicate using a superposition of lorentzian profiles
 bounds = [
     np.where(np.round(waves_7023_atm, 2) == 15.00)[0][0],
     np.where(np.round(waves_7023_atm, 2) == 18.50)[0][0]
@@ -318,7 +318,7 @@ profile.add_component(
     ['x04', 'amp4', 'gamma4'],
     initial_values=[tabvals_16p4b[0], comp_16p4b[0], comp_16p4b[1]],
     min_values=[16.43, 10, 0],
-    max_values=[16.44, 1000, 0.1],
+    max_values=[16.44, 1000, 0.10],
     allow_vary=vary
 )
 
@@ -375,20 +375,21 @@ profile.add_component(
 wave_range = waves_7023_atm[bounds[0]:bounds[1]]
 flux_range = fluxes_7023_atm_glsub[bounds[0]:bounds[1]]
 cont_range = spline_7023_atm_gsub[bounds[0]:bounds[1]]
+global_range = spline_7023_atm[bounds[0]:bounds[1]]
 profile_fit = profile.fit(wave_range, flux_range + cont_range)
 
 fig = plt.figure()
-plt.plot(wave_range, flux_range + cont_range)
-plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range), linestyle=':', color='black')
-plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[True, False, False, False, False, False, False, False, False]))
-plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, True, False, False, False, False, False, False, False]))
-plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, True, False, False, False, False, False, False]))
-plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, True, False, False, False, False, False]))
-plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, True, False, False, False, False]))
-plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, True, False, False, False]))
-plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, True, False, False]))
-plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, True, False]))
-plt.plot(wave_range, profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, False, True]))
+plt.plot(wave_range, flux_range + cont_range + global_range)
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range), linestyle=':', color='black')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[True, False, False, False, False, False, False, False, False]))
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, True, False, False, False, False, False, False, False]))
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, True, False, False, False, False, False, False]))
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, True, False, False, False, False, False]))
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, True, False, False, False, False]))
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, True, False, False, False]))
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, True, False, False]))
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, True, False]))
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, False, True]))
 
 
 # plt.xlim(15.5, 18.5)
