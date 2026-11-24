@@ -209,16 +209,47 @@ fluxes_7023_atm = np.load('NGC7023_Files/NGC7023_ATM_Continuum.npy')
 waves_7023_atm = np.load('NGC7023_Files/NGC7023_ATM_Wavelengths.npy')
 
 # estimating and removing the global continuum contirbution
-anchors_g = np.array([1.10, 1.23, 1.67, 3.05, 5.08, 10.30, 15.00, 23.00, 24.85, 25.50, 26.15]) # , 5.08, 10.30, 15.00
+anchors_g = np.array([1.10, 1.23, 1.67, 3.05, 5.08, 10.30, 15.00, 23.00, 24.85, 25.50, 26.15])
 spline2, spl_func2 = spline_from_anchor_points(waves_7023_atm, fluxes_7023_atm[:, np.newaxis, np.newaxis], anchors_g)
 spline_7023_atm = spline2[:, 0, 0]
 fluxes_7023_atm_gsub = fluxes_7023_atm - spline_7023_atm
 
-# estimating and removing the local continuum contribution
-anchors_l = np.array([1.10, 1.23, 1.67, 3.05, 5.08, 10.30, 15.00, 16.15, 16.85, 18.10, 18.74, 19.35, 23.00, 24.85, 25.50, 26.15])
-spline22, spl_func22 = spline_from_anchor_points(waves_7023_atm, fluxes_7023_atm_gsub[:, np.newaxis, np.newaxis], anchors_l)
-spline_7023_atm_gsub = spline22[:, 0, 0]
-fluxes_7023_atm_glsub = fluxes_7023_atm_gsub - spline_7023_atm_gsub
+# making a plot to show what the estimated continuum looks like and the visualize anchor points
+anchors_g_yaxis = [
+    spline_7023_atm[np.where(np.round(waves_7023_atm, 2) == 1.10)[0][0]],
+    spline_7023_atm[np.where(np.round(waves_7023_atm, 2) == 1.23)[0][0]],
+    spline_7023_atm[np.where(np.round(waves_7023_atm, 2) == 1.67)[0][0]],
+    spline_7023_atm[np.where(np.round(waves_7023_atm, 2) == 3.05)[0][0]],
+    spline_7023_atm[np.where(np.round(waves_7023_atm, 2) == 5.08)[0][0]],
+    spline_7023_atm[np.where(np.round(waves_7023_atm, 2) == 10.30)[0][0]],
+    spline_7023_atm[np.where(np.round(waves_7023_atm, 2) == 15.00)[0][0]],
+    spline_7023_atm[np.where(np.round(waves_7023_atm, 2) == 23.00)[0][0]],
+    spline_7023_atm[np.where(np.round(waves_7023_atm, 2) == 24.85)[0][0]],
+    spline_7023_atm[np.where(np.round(waves_7023_atm, 2) == 25.50)[0][0]],
+    spline_7023_atm[np.where(np.round(waves_7023_atm, 2) == 26.15)[0][0]]
+]
+
+fig = plt.figure(figsize=(10,7))
+ax = plt.gca()
+plt.plot(waves_7023_atm, fluxes_7023_atm, color='grey')
+plt.plot(waves_7023_atm, spline_7023_atm, color='black')
+plt.scatter(anchors_g, anchors_g_yaxis, zorder=2)
+
+ax.ticklabel_format(axis='both', style='sci', scilimits=(-2, 6))
+ax.tick_params(axis='x', which='major', labelbottom=True, top=True, length=7, width=1, direction='in')
+ax.tick_params(axis='x', which='minor', labelbottom=True, top=True, length=5, width=1, direction='in')
+ax.tick_params(axis='y', which='major', labelleft=True, right=True, length=7, width=1, direction='in')
+ax.tick_params(axis='y', which='minor', labelleft=True, right=True, length=5, width=1, direction='in')
+
+ax.xaxis.set_minor_locator(AutoMinorLocator())
+ax.yaxis.set_minor_locator(AutoMinorLocator())
+
+plt.title(r'NGC 7023 ATM Template Spectra')
+plt.xlabel(r'Wavelength ($\mu$m)')
+plt.ylabel(r'$F_\nu$ (MJy sr$^{-1}$)')
+
+# plt.show()
+plt.savefig(f'global_continuum_overlay', dpi=300, bbox_inches='tight', pad_inches=0.1)
 
 # Van De Putte et al. (2026) fits the PAH band profiles after removing both the local and global contribution
 # They fit the '16-18' micron region using 9 components
@@ -373,27 +404,55 @@ profile.add_component(
 )
 
 wave_range = waves_7023_atm[bounds[0]:bounds[1]]
-flux_range = fluxes_7023_atm_glsub[bounds[0]:bounds[1]]
-cont_range = spline_7023_atm_gsub[bounds[0]:bounds[1]]
+flux_range = fluxes_7023_atm_gsub[bounds[0]:bounds[1]]
 global_range = spline_7023_atm[bounds[0]:bounds[1]]
-profile_fit = profile.fit(wave_range, flux_range + cont_range)
+profile_fit = profile.fit(wave_range, flux_range)
 
-fig = plt.figure()
-plt.plot(wave_range, flux_range + cont_range + global_range)
-plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range), linestyle=':', color='black')
-plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[True, False, False, False, False, False, False, False, False]))
-plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, True, False, False, False, False, False, False, False]))
-plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, True, False, False, False, False, False, False]))
-plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, True, False, False, False, False, False]))
-plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, True, False, False, False, False]))
-plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, True, False, False, False]))
-plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, True, False, False]))
-plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, True, False]))
-plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, False, True]))
+col_16p0a = '#cd6578'
+col_16p0b = '#332288'
+col_16p4a = '#016d25'
+col_16p4b = '#88cbf0'
+col_16p7 = '#82144a'
+col_17p0 = '#43aa97'
+col_17p2 = '#999932'
+col_17p4 = '#aa4498'
+col_17p7 = '#ca6678'
 
+fig = plt.figure(figsize=(5, 6))
+ax = plt.gca()
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range), color='black')
+plt.plot(wave_range, flux_range + global_range, color='grey')
 
-# plt.xlim(15.5, 18.5)
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[True, False, False, False, False, False, False, False, False]), color=col_16p0a, label='16.0A')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, True, False, False, False, False, False, False, False]), color=col_16p0b, label='16.0B')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, True, False, False, False, False, False, False]), color=col_16p4a, label='16.4A')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, True, False, False, False, False, False]), color=col_16p4b, label='16.4B')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, True, False, False, False, False]), color=col_16p7, label='16.7')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, True, False, False, False]), color=col_17p0, label='17.0')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, True, False, False]), color=col_17p2, label='17.2')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, True, False]), color=col_17p4, label='17.4')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, False, True]), color=col_17p7, label='17.7')
 
-plt.show()
+ax.ticklabel_format(axis='both', style='sci', scilimits=(-2, 6))
+ax.tick_params(axis='x', which='major', labelbottom=True, top=True, length=7, width=1, direction='in')
+ax.tick_params(axis='x', which='minor', labelbottom=True, top=True, length=5, width=1, direction='in')
+ax.tick_params(axis='y', which='major', labelleft=True, right=True, length=7, width=1, direction='in')
+ax.tick_params(axis='y', which='minor', labelleft=True, right=True, length=5, width=1, direction='in')
+
+ax.xaxis.set_minor_locator(AutoMinorLocator())
+ax.yaxis.set_minor_locator(AutoMinorLocator())
+
+# plt.xticks(fontsize=24)
+# plt.yticks(fontsize=24)
+
+plt.title(r'16-18 $\mu$m decomposition')
+plt.xlabel(r'Wavelength ($\mu$m)')
+plt.ylabel(r'$F_\nu$ (MJy sr$^{-1}$)')
+
+plt.xlim(15.5, 18.3)
+plt.ylim(125, 1150)
+plt.legend()
+# plt.show()
+plt.savefig(f'fig_4_reproduction', dpi=300, bbox_inches='tight', pad_inches=0.1)
 
 
