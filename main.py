@@ -4,32 +4,32 @@
 
 #import statements
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+# import matplotlib.patches as patches
 import numpy as np
 from matplotlib.ticker import  AutoMinorLocator
-import random
-import pandas
-import statistics
-import scipy
-import scipy.io as sio
-from scipy.optimize import curve_fit
-from astropy.io import ascii
-from scipy.interpolate import UnivariateSpline
-from matplotlib.backends.backend_pdf import PdfPages
-import copy
-from math import floor, ceil
-from PIL import Image
-from astropy import units as u
-from astropy.utils.data import get_pkg_data_filename
-# from ismwestern.io import save_Spectrum1D_to_fits, FITSFormat
-from specutils import Spectrum1D
-from ismwestern import io
-from astropy.io import fits
-from astropy.wcs import WCS
-from astropy.units import Unit
-from astropy.nddata import StdDevUncertainty
-from astropy.modeling import models, fitting
-from astropy.stats import gaussian_sigma_to_fwhm
+# import random
+# import pandas
+# import statistics
+# import scipy
+# import scipy.io as sio
+# from scipy.optimize import curve_fit
+# from astropy.io import ascii
+# from scipy.interpolate import UnivariateSpline
+# from matplotlib.backends.backend_pdf import PdfPages
+# import copy
+# from math import floor, ceil
+# from PIL import Image
+# from astropy import units as u
+# from astropy.utils.data import get_pkg_data_filename
+# # from ismwestern.io import save_Spectrum1D_to_fits, FITSFormat
+# from specutils import Spectrum1D
+# from ismwestern import io
+# from astropy.io import fits
+# from astropy.wcs import WCS
+# from astropy.units import Unit
+# from astropy.nddata import StdDevUncertainty
+# from astropy.modeling import models, fitting
+# from astropy.stats import gaussian_sigma_to_fwhm
 from ismwestern.general.mathutils.functions import gaussian, lorentzian, skewed_gaussian
 from ismwestern.fitting.profile_fitter import ProfileFitter
 from tqdm import tqdm
@@ -203,6 +203,9 @@ def spline_from_anchor_points(
     spl = spl_func(wavelengths)
     return spl, spl_func
 
+def drude(x, x0, amp, fwhm):
+
+    return
 #File imports
 # flux = np.load('NGC7023_Files/NGC7023_ATM_Fluxes.npy') #this version has atomic lines
 fluxes_7023_atm = np.load('NGC7023_Files/NGC7023_ATM_Continuum.npy')
