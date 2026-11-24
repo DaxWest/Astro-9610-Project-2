@@ -647,5 +647,3 @@ plt.ylim(125, 1150)
 plt.legend()
 # plt.show()
 plt.savefig(f'fig_4_reproduction_lorentzianprofile', dpi=300, bbox_inches='tight', pad_inches=0.1)
-
-
