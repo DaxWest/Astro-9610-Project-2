@@ -4,38 +4,16 @@
 
 #import statements
 import matplotlib.pyplot as plt
-# import matplotlib.patches as patches
 import numpy as np
 from matplotlib.ticker import  AutoMinorLocator
-# import random
-# import pandas
-# import statistics
-# import scipy
-# import scipy.io as sio
-# from scipy.optimize import curve_fit
-# from astropy.io import ascii
-# from scipy.interpolate import UnivariateSpline
-# from matplotlib.backends.backend_pdf import PdfPages
-# import copy
-# from math import floor, ceil
-# from PIL import Image
-# from astropy import units as u
-# from astropy.utils.data import get_pkg_data_filename
-# # from ismwestern.io import save_Spectrum1D_to_fits, FITSFormat
-# from specutils import Spectrum1D
-# from ismwestern import io
-# from astropy.io import fits
-# from astropy.wcs import WCS
-# from astropy.units import Unit
-# from astropy.nddata import StdDevUncertainty
-# from astropy.modeling import models, fitting
-# from astropy.stats import gaussian_sigma_to_fwhm
-from ismwestern.general.mathutils.functions import gaussian, lorentzian, skewed_gaussian
-from ismwestern.fitting.profile_fitter import ProfileFitter
-# from tqdm import tqdm
 from scipy.interpolate import make_splrep
 
+#S. Van Schuylenbergh, D. Van De Putte, and N. Clark, ISM Western (2026), private GitHub repository, accessed via permission.
+from ismwestern.general.mathutils.functions import lorentzian
+from ismwestern.fitting.profile_fitter import ProfileFitter
+
 #Functions
+#Functions used to estimate continuum contributions are modified, with permission, versions of code originally written by N. Clark (accessed via private correspondance).
 def _wave_to_ind(wavelengths, x):
     ind = np.zeros(x.shape).astype(np.int64)
     for i, wave in enumerate(x):
@@ -203,6 +181,7 @@ def spline_from_anchor_points(
     spl = spl_func(wavelengths)
     return spl, spl_func
 
+# Drude profile is based on the Drude1D function from Astropy: https://docs.astropy.org/en/stable/api/astropy.modeling.physical_models.Drude1D.html
 def drude(x, x0, amp, fwhm):
 
     return amp * (fwhm / x0)**2 / ((x/x0 - x0/x)**2 + (fwhm/x0)**2)
