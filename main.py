@@ -181,13 +181,12 @@ def spline_from_anchor_points(
     spl = spl_func(wavelengths)
     return spl, spl_func
 
-# Drude profile is based on the Drude1D function from Astropy: https://docs.astropy.org/en/stable/api/astropy.modeling.physical_models.Drude1D.html
+#Drude profile is based on the Drude1D function from Astropy: https://docs.astropy.org/en/stable/api/astropy.modeling.physical_models.Drude1D.html
 def drude(x, x0, amp, fwhm):
 
     return amp * (fwhm / x0)**2 / ((x/x0 - x0/x)**2 + (fwhm/x0)**2)
 
 #File imports
-# flux = np.load('NGC7023_Files/NGC7023_ATM_Fluxes.npy') #this version has atomic lines
 fluxes_7023_atm = np.load('NGC7023_Files/NGC7023_ATM_Continuum.npy')
 waves_7023_atm = np.load('NGC7023_Files/NGC7023_ATM_Wavelengths.npy')
 
@@ -252,6 +251,7 @@ tabvals_17p4 = [17.37, 0.224]
 tabvals_17p7 = [17.77, 0.362]
 
 # Drude Profile Replication
+
 # [index of maximum amplitude wavelength, fwhm]
 comp_16p0a = [
     np.where(np.round(waves_7023_atm, 2) == tabvals_16p0a[0])[0][0],
@@ -290,7 +290,7 @@ comp_17p7 = [
     tabvals_17p7[1]
 ]
 
-# We will replicate using a superposition of drude profiles
+# We will replicate using a superposition of Drude profiles
 bounds = [
     np.where(np.round(waves_7023_atm, 2) == 15.00)[0][0],
     np.where(np.round(waves_7023_atm, 2) == 18.50)[0][0]
@@ -426,9 +426,6 @@ ax.tick_params(axis='y', which='minor', labelleft=True, right=True, length=5, wi
 ax.xaxis.set_minor_locator(AutoMinorLocator())
 ax.yaxis.set_minor_locator(AutoMinorLocator())
 
-# plt.xticks(fontsize=24)
-# plt.yticks(fontsize=24)
-
 plt.title(r'16-18 $\mu$m decomposition - Drude')
 plt.xlabel(r'Wavelength ($\mu$m)')
 plt.ylabel(r'$F_\nu$ (MJy sr$^{-1}$)')
@@ -436,10 +433,12 @@ plt.ylabel(r'$F_\nu$ (MJy sr$^{-1}$)')
 plt.xlim(15.5, 18.3)
 plt.ylim(125, 1150)
 plt.legend()
-# plt.show()
 plt.savefig(f'fig_4_reproduction_drudeprofile', dpi=300, bbox_inches='tight', pad_inches=0.1)
 
+##########################################################################################################3
+
 #Lorentzian replication
+
 # [index of maximum amplitude wavelength, gamma]
 comp_16p0a = [
     np.where(np.round(waves_7023_atm, 2) == tabvals_16p0a[0])[0][0],
@@ -614,9 +613,6 @@ ax.tick_params(axis='y', which='minor', labelleft=True, right=True, length=5, wi
 ax.xaxis.set_minor_locator(AutoMinorLocator())
 ax.yaxis.set_minor_locator(AutoMinorLocator())
 
-# plt.xticks(fontsize=24)
-# plt.yticks(fontsize=24)
-
 plt.title(r'16-18 $\mu$m decomposition - Lorentzian')
 plt.xlabel(r'Wavelength ($\mu$m)')
 plt.ylabel(r'$F_\nu$ (MJy sr$^{-1}$)')
@@ -624,5 +620,4 @@ plt.ylabel(r'$F_\nu$ (MJy sr$^{-1}$)')
 plt.xlim(15.5, 18.3)
 plt.ylim(125, 1150)
 plt.legend()
-# plt.show()
 plt.savefig(f'fig_4_reproduction_lorentzianprofile', dpi=300, bbox_inches='tight', pad_inches=0.1)
