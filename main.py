@@ -32,7 +32,7 @@ from matplotlib.ticker import  AutoMinorLocator
 # from astropy.stats import gaussian_sigma_to_fwhm
 from ismwestern.general.mathutils.functions import gaussian, lorentzian, skewed_gaussian
 from ismwestern.fitting.profile_fitter import ProfileFitter
-from tqdm import tqdm
+# from tqdm import tqdm
 from scipy.interpolate import make_splrep
 
 #Functions
@@ -205,7 +205,8 @@ def spline_from_anchor_points(
 
 def drude(x, x0, amp, fwhm):
 
-    return
+    return amp * (fwhm / x0)**2 / ((x/x0 - x0/x)**2 + (fwhm/x0)**2)
+
 #File imports
 # flux = np.load('NGC7023_Files/NGC7023_ATM_Fluxes.npy') #this version has atomic lines
 fluxes_7023_atm = np.load('NGC7023_Files/NGC7023_ATM_Continuum.npy')
@@ -271,6 +272,195 @@ tabvals_17p2 = [17.17, 0.219]
 tabvals_17p4 = [17.37, 0.224]
 tabvals_17p7 = [17.77, 0.362]
 
+# Drude Profile Replication
+# [index of maximum amplitude wavelength, fwhm]
+comp_16p0a = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_16p0a[0])[0][0],
+    tabvals_16p0a[1]
+]
+comp_16p0b = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_16p0b[0])[0][0],
+    tabvals_16p0b[1]
+]
+comp_16p4a = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_16p4a[0])[0][0],
+    tabvals_16p4a[1]
+]
+comp_16p4b = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_16p4b[0])[0][0],
+    tabvals_16p4b[1]
+]
+comp_16p7 = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_16p7[0])[0][0],
+    tabvals_16p7[1] / 2
+]
+comp_17p0 = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_17p0[0])[0][0],
+    tabvals_17p0[1]
+]
+comp_17p2 = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_17p2[0])[0][0],
+    tabvals_17p2[1]
+]
+comp_17p4 = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_17p4[0])[0][0],
+    tabvals_17p4[1]
+]
+comp_17p7 = [
+    np.where(np.round(waves_7023_atm, 2) == tabvals_17p7[0])[0][0],
+    tabvals_17p7[1]
+]
+
+# We will replicate using a superposition of drude profiles
+bounds = [
+    np.where(np.round(waves_7023_atm, 2) == 15.00)[0][0],
+    np.where(np.round(waves_7023_atm, 2) == 18.50)[0][0]
+]
+vary = [False, True, False]
+profile = ProfileFitter()
+#16.0A component
+profile.add_component(
+    drude,
+    ['x01', 'amp1', 'fwhm1'],
+    initial_values=[tabvals_16p0a[0], comp_16p0a[0], comp_16p0a[1]],
+    min_values=[15.8, 10, 0],
+    max_values=[15.9, 1000, comp_16p0a[1] + 0.001],
+    allow_vary=vary
+)
+
+#16.0B component
+profile.add_component(
+    drude,
+    ['x02', 'amp2', 'fwhm2'],
+    initial_values=[tabvals_16p0b[0], comp_16p0b[0], comp_16p0b[1]],
+    min_values=[16.0, 10, 0],
+    max_values=[16.05, 1000, comp_16p0b[1] + 0.001],
+    allow_vary=vary
+)
+
+#16.4A component
+profile.add_component(
+    drude,
+    ['x03', 'amp3', 'fwhm3'],
+    initial_values=[tabvals_16p4a[0], comp_16p4a[0], comp_16p4a[1]],
+    min_values=[16.40, 10, 0],
+    max_values=[16.41, 1000, comp_16p4a[1] + 0.001],
+    allow_vary=vary
+)
+
+#16.4B component
+profile.add_component(
+    drude,
+    ['x04', 'amp4', 'fwhm4'],
+    initial_values=[tabvals_16p4b[0], comp_16p4b[0], comp_16p4b[1]],
+    min_values=[16.43, 10, 0],
+    max_values=[16.44, 1000, comp_16p0b[1] + 0.001],
+    allow_vary=vary
+)
+
+#16.7 component
+profile.add_component(
+    drude,
+    ['x05', 'amp5', 'fwhm5'],
+    initial_values=[tabvals_16p7[0], comp_16p7[0], comp_16p7[1]],
+    min_values=[16.7, 10, 0],
+    max_values=[16.75, 1000, comp_16p7[1]],
+    allow_vary=vary
+)
+
+#17.0 component
+profile.add_component(
+    drude,
+    ['x06', 'amp6', 'fwhm6'],
+    initial_values=[tabvals_17p0[0], comp_17p0[0], comp_17p0[1]],
+    min_values=[16.9, 10, 0],
+    max_values=[17.1, 1000, comp_17p0[1] + 0.001],
+    allow_vary=vary
+)
+
+#17.2 component
+profile.add_component(
+    drude,
+    ['x07', 'amp7', 'fwhm7'],
+    initial_values=[tabvals_17p2[0], comp_17p2[0], comp_17p2[1]],
+    min_values=[17.1, 10, 0],
+    max_values=[17.2, 1000, comp_17p2[1] + 0.001],
+    allow_vary=vary
+)
+
+#17.4 component
+profile.add_component(
+    drude,
+    ['x08', 'amp8', 'fwhm8'],
+    initial_values=[tabvals_17p4[0], comp_17p4[0], comp_17p4[1]],
+    min_values=[17.3, 10, 0],
+    max_values=[17.4, 1000, comp_17p4[1] + 0.001],
+    allow_vary=vary
+)
+
+#17.7 component
+profile.add_component(
+    drude,
+    ['x09', 'amp9', 'fwhm9'],
+    initial_values=[tabvals_17p7[0], comp_17p7[0], comp_17p7[1]],
+    min_values=[17.7, 10, 0],
+    max_values=[17.8, 1000, comp_17p7[1] + 0.001],
+    allow_vary=vary
+)
+
+wave_range = waves_7023_atm[bounds[0]:bounds[1]]
+flux_range = fluxes_7023_atm_gsub[bounds[0]:bounds[1]]
+global_range = spline_7023_atm[bounds[0]:bounds[1]]
+profile_fit = profile.fit(wave_range, flux_range)
+
+col_16p0a = '#cd6578'
+col_16p0b = '#332288'
+col_16p4a = '#016d25'
+col_16p4b = '#88cbf0'
+col_16p7 = '#82144a'
+col_17p0 = '#43aa97'
+col_17p2 = '#999932'
+col_17p4 = '#aa4498'
+col_17p7 = '#ca6678'
+
+fig = plt.figure(figsize=(5, 6))
+ax = plt.gca()
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range), color='black')
+plt.plot(wave_range, flux_range + global_range, color='grey')
+
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[True, False, False, False, False, False, False, False, False]), color=col_16p0a, label='16.0A')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, True, False, False, False, False, False, False, False]), color=col_16p0b, label='16.0B')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, True, False, False, False, False, False, False]), color=col_16p4a, label='16.4A')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, True, False, False, False, False, False]), color=col_16p4b, label='16.4B')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, True, False, False, False, False]), color=col_16p7, label='16.7')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, True, False, False, False]), color=col_17p0, label='17.0')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, True, False, False]), color=col_17p2, label='17.2')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, True, False]), color=col_17p4, label='17.4')
+plt.plot(wave_range, global_range + profile_fit.produce_best_fit_curve(wave_range, component_mask=[False, False, False, False, False, False, False, False, True]), color=col_17p7, label='17.7')
+
+ax.ticklabel_format(axis='both', style='sci', scilimits=(-2, 6))
+ax.tick_params(axis='x', which='major', labelbottom=True, top=True, length=7, width=1, direction='in')
+ax.tick_params(axis='x', which='minor', labelbottom=True, top=True, length=5, width=1, direction='in')
+ax.tick_params(axis='y', which='major', labelleft=True, right=True, length=7, width=1, direction='in')
+ax.tick_params(axis='y', which='minor', labelleft=True, right=True, length=5, width=1, direction='in')
+
+ax.xaxis.set_minor_locator(AutoMinorLocator())
+ax.yaxis.set_minor_locator(AutoMinorLocator())
+
+# plt.xticks(fontsize=24)
+# plt.yticks(fontsize=24)
+
+plt.title(r'16-18 $\mu$m decomposition - Drude')
+plt.xlabel(r'Wavelength ($\mu$m)')
+plt.ylabel(r'$F_\nu$ (MJy sr$^{-1}$)')
+
+plt.xlim(15.5, 18.3)
+plt.ylim(125, 1150)
+plt.legend()
+# plt.show()
+plt.savefig(f'fig_4_reproduction_drudeprofile', dpi=300, bbox_inches='tight', pad_inches=0.1)
+
+#Lorentzian replication
 # [index of maximum amplitude wavelength, gamma]
 comp_16p0a = [
     np.where(np.round(waves_7023_atm, 2) == tabvals_16p0a[0])[0][0],
@@ -448,7 +638,7 @@ ax.yaxis.set_minor_locator(AutoMinorLocator())
 # plt.xticks(fontsize=24)
 # plt.yticks(fontsize=24)
 
-plt.title(r'16-18 $\mu$m decomposition')
+plt.title(r'16-18 $\mu$m decomposition - Lorentzian')
 plt.xlabel(r'Wavelength ($\mu$m)')
 plt.ylabel(r'$F_\nu$ (MJy sr$^{-1}$)')
 
@@ -456,6 +646,6 @@ plt.xlim(15.5, 18.3)
 plt.ylim(125, 1150)
 plt.legend()
 # plt.show()
-plt.savefig(f'fig_4_reproduction', dpi=300, bbox_inches='tight', pad_inches=0.1)
+plt.savefig(f'fig_4_reproduction_lorentzianprofile', dpi=300, bbox_inches='tight', pad_inches=0.1)
 
 
