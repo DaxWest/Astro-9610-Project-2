@@ -185,7 +185,7 @@ def drude(x, x0, amp, fwhm):
 
     return amp * (fwhm / x0)**2 / ((x/x0 - x0/x)**2 + (fwhm/x0)**2)
 
-def lorentzian(x, x0, amp, gamma)
+def lorentzian(x, x0, amp, gamma):
 
     return (amp * gamma**2) / ((x - x0) ** 2 + gamma**2)
 #File imports
