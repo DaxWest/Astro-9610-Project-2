@@ -9,7 +9,6 @@ from matplotlib.ticker import  AutoMinorLocator
 from scipy.interpolate import make_splrep
 
 #S. Van Schuylenbergh, D. Van De Putte, and N. Clark, ISM Western (2026), private GitHub repository, accessed via permission.
-from ismwestern.general.mathutils.functions import lorentzian
 from ismwestern.fitting.profile_fitter import ProfileFitter
 
 #Functions
@@ -186,6 +185,9 @@ def drude(x, x0, amp, fwhm):
 
     return amp * (fwhm / x0)**2 / ((x/x0 - x0/x)**2 + (fwhm/x0)**2)
 
+def lorentzian(x, x0, amp, gamma)
+
+    return (amp * gamma**2) / ((x - x0) ** 2 + gamma**2)
 #File imports
 fluxes_7023_atm = np.load('NGC7023_Files/NGC7023_ATM_Continuum.npy')
 waves_7023_atm = np.load('NGC7023_Files/NGC7023_ATM_Wavelengths.npy')
